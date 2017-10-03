@@ -1,0 +1,10 @@
+{
+    "dev": {
+        "app_function": "compliments.app", 
+        "aws_region": "us-east-1", 
+        "profile_name": "default", 
+        "project_name": "compliments", 
+        "runtime": "python2.7", 
+        "s3_bucket": "zappa-a8n3r3uj2"
+    }
+}
