@@ -1,3 +1,0 @@
-flask-ask
-zappa
-awscli
