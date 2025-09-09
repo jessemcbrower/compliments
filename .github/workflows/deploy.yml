@@ -1,0 +1,68 @@
+name: Deploy Alexa Skill and Lambda
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps and package
+        run: |
+          python -m venv .venv
+          . .venv/bin/activate
+          pip install -U pip
+          pip install -r requirements.txt
+          mkdir -p dist
+          cp -R lambda_function.py utils_s3.py dist/
+          cd .venv/lib/python*/site-packages && zip -r ../../../../build.zip . >/dev/null
+          cd ${GITHUB_WORKSPACE}/dist && zip -r ../build.zip . >/dev/null
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Upload Lambda code
+        run: |
+          aws lambda update-function-code --function-name ${{ secrets.LAMBDA_FUNCTION_NAME }} --zip-file fileb://build.zip
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install ASK CLI
+        run: npm i -g ask-cli@2
+
+      - name: Render skill manifest with ARN
+        env:
+          LAMBDA_ARN: ${{ secrets.LAMBDA_ARN }}
+        run: |
+          python scripts/render_skill_manifest.py
+
+      - name: Configure ASK CLI
+        env:
+          ASK_REFRESH_TOKEN: ${{ secrets.ASK_REFRESH_TOKEN }}
+          ASK_VENDOR_ID: ${{ secrets.ASK_VENDOR_ID }}
+        run: |
+          ask configure --no-browser --vendor-id ${ASK_VENDOR_ID} --refresh-token ${ASK_REFRESH_TOKEN} --skill-id ${{ secrets.ASK_SKILL_ID }} --profile default
+
+      - name: Deploy Skill Package
+        env:
+          ASK_DEFAULT_PROFILE: default
+        run: |
+          ask deploy -p default
+

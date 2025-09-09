@@ -1,0 +1,31 @@
+{
+  "manifest": {
+    "publishingInformation": {
+      "locales": {
+        "en-US": {
+          "summary": "A quick, kind compliment whenever you ask.",
+          "examplePhrases": [
+            "Alexa, open Daily Compliment",
+            "Alexa, ask Daily Compliment to give me a compliment"
+          ],
+          "name": "Daily Compliment",
+          "description": "Daily Compliment gives you a friendly, family‑safe compliment on demand, powered by OpenAI."
+        }
+      },
+      "isAvailableWorldwide": true,
+      "testingInstructions": "Say: 'open daily compliment' or 'give me a compliment'.",
+      "category": "PRODUCTIVITY",
+      "distributionMode": "PUBLIC"
+    },
+    "apis": {
+      "custom": {
+        "endpoint": {
+          "uri": "{{LAMBDA_ARN}}"
+        }
+      }
+    },
+    "manifestVersion": "1.0",
+    "permissions": []
+  }
+}
+

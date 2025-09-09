@@ -1,0 +1,26 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "invocationName": "daily compliment",
+      "intents": [
+        {
+          "name": "GetComplimentIntent",
+          "slots": [],
+          "samples": [
+            "give me a compliment",
+            "compliment me",
+            "say something nice",
+            "I need a compliment",
+            "make my day"
+          ]
+        },
+        { "name": "AMAZON.HelpIntent", "samples": [] },
+        { "name": "AMAZON.StopIntent", "samples": [] },
+        { "name": "AMAZON.CancelIntent", "samples": [] },
+        { "name": "AMAZON.FallbackIntent", "samples": [] }
+      ],
+      "types": []
+    }
+  }
+}
+

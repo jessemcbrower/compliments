@@ -7,6 +7,10 @@ This skill returns a single, family‑friendly compliment using OpenAI. Code is 
 - `lambda_function.py`: Main skill handler (Lambda entry point `lambda_handler`).
 - `utils_s3.py`: Helper to generate S3 presigned URLs (optional).
 - `alexa-model.json`: Interaction model for import to the Alexa Developer Console.
+- `skill-package/`: ASK CLI skill package (manifest + interaction model).
+- `ask-resources.json`: ASK CLI config for the skill package.
+- `.github/workflows/deploy.yml`: CI to deploy Lambda + Skill.
+- `Makefile`: common local tasks (package, deploy via ASK CLI).
 - `requirements.txt`: Python dependencies.
 
 ### Setup
@@ -26,11 +30,32 @@ This skill returns a single, family‑friendly compliment using OpenAI. Code is 
 3. Set endpoint to your Lambda ARN in the same region.
 4. Save and build the model.
 
+### ASK CLI (optional)
+Prereqs: Node 18+, `ask-cli@2`, and you have a Vendor ID.
+
+1. Configure ASK locally: `make ask-login`
+2. Render manifest with your Lambda ARN:
+   - `export LAMBDA_ARN=arn:aws:lambda:REGION:ACCOUNT:function:FUNCTION_NAME`
+   - `python scripts/render_skill_manifest.py`
+3. Deploy the skill package: `npx ask-cli@2 deploy -p default`
+
+### CI/CD
+`deploy.yml` expects these GitHub Secrets:
+- `AWS_ROLE_ARN`, `AWS_REGION`, `LAMBDA_FUNCTION_NAME`
+- `LAMBDA_ARN` (the ARN used in the skill manifest)
+- `ASK_REFRESH_TOKEN`, `ASK_VENDOR_ID`, `ASK_SKILL_ID`
+
 ### Testing
 - Try: "Open daily compliment" or "give me a compliment".
 - If OpenAI is unavailable, the skill replies with a safe fallback message.
 
 ### Security
 - Never hardcode secrets. Use Lambda environment variables and rotate keys routinely.
+
+### Tips to grow usage
+- Choose a short, memorable invocation name (e.g., “Daily Compliment”).
+- Add diverse sample utterances in `interactionModels` to cover phrasings.
+- Keep responses concise and upbeat; avoid repetition with a slightly higher temperature.
+- Encourage re‑engagement: add a card or a follow‑up prompt occasionally.
 
 
