@@ -57,5 +57,11 @@ Prereqs: Node 18+, `ask-cli@2`, and you have a Vendor ID.
 - Add diverse sample utterances in `interactionModels` to cover phrasings.
 - Keep responses concise and upbeat; avoid repetition with a slightly higher temperature.
 - Encourage re‑engagement: add a card or a follow‑up prompt occasionally.
+- Enable optional follow‑up prompts by setting `FOLLOWUP_RATE=1` and Alexa built‑in intents `AMAZON.YesIntent`/`AMAZON.NoIntent` are supported.
+- A/B prompts: set `AB_FORCE_VARIANT=A` or `B` for testing; otherwise users are split consistently.
+- Metrics: CloudWatch namespace is controlled by `METRICS_NAMESPACE` (default `ComplimentsSkill`).
+
+### Localization
+Skill package includes `en-US`, `en-GB`, `en-CA`, `en-AU` models. Update invocation names per locale if desired and redeploy with ASK CLI.
 
 

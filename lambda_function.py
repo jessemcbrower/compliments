@@ -1,12 +1,16 @@
 import logging
 import os
-from typing import Optional
+import hashlib
+from typing import Optional, Dict
 
 import ask_sdk_core.utils as ask_utils
 from ask_sdk_core.skill_builder import SkillBuilder
 from ask_sdk_core.dispatch_components import AbstractRequestHandler, AbstractExceptionHandler
 from ask_sdk_core.handler_input import HandlerInput
 from ask_sdk_model import Response
+
+import boto3
+from botocore.exceptions import BotoCoreError, ClientError
 
 try:
     from openai import OpenAI
@@ -18,8 +22,49 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 _openai_client = OpenAI() if _OPENAI_AVAILABLE and os.getenv("OPENAI_API_KEY") else None
+_cloudwatch = boto3.client("cloudwatch")
 
-def generate_compliment() -> str:
+METRICS_NAMESPACE = os.getenv("METRICS_NAMESPACE", "ComplimentsSkill")
+
+def _put_metric(metric_name: str, dimensions: Optional[Dict[str, str]] = None, value: float = 1.0) -> None:
+    dims = []
+    if dimensions:
+        for k, v in dimensions.items():
+            dims.append({"Name": k, "Value": v})
+    try:
+        _cloudwatch.put_metric_data(
+            Namespace=METRICS_NAMESPACE,
+            MetricData=[
+                {
+                    "MetricName": metric_name,
+                    "Dimensions": dims,
+                    "Value": value,
+                    "Unit": "Count",
+                }
+            ],
+        )
+    except (BotoCoreError, ClientError) as e:
+        logger.warning("CloudWatch metric failed: %s", e)
+
+def _get_locale(handler_input: HandlerInput) -> str:
+    try:
+        return handler_input.request_envelope.request.locale or "en-US"
+    except Exception:
+        return "en-US"
+
+def _ab_variant(handler_input: HandlerInput) -> str:
+    forced = os.getenv("AB_FORCE_VARIANT")
+    if forced in {"A", "B"}:
+        return forced
+    try:
+        user_id = handler_input.request_envelope.context.system.user.user_id or "anon"
+    except Exception:
+        user_id = "anon"
+    digest = hashlib.sha256(user_id.encode("utf-8")).hexdigest()
+    bucket = int(digest[:2], 16)  # 0..255
+    return "A" if bucket < 128 else "B"
+
+def generate_compliment(variant: str) -> str:
     fallback = "You're doing great — keep it up!"
     if _openai_client is None:
         logger.warning("OpenAI client unavailable or API key not set; using fallback compliment.")
@@ -27,16 +72,19 @@ def generate_compliment() -> str:
 
     model_name = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
     try:
+        system_prompt = (
+            "You are a warm, upbeat compliment generator for a voice assistant. "
+            "Return exactly one, family-friendly compliment, one sentence, 8–20 words, no emojis, no quotes."
+            if variant == "A"
+            else
+            "You generate crisp, delightful compliments for voice. Exactly one sentence, 8–18 words, no emojis, no quotes, no lists. Vary tone subtly."
+        )
         completion = _openai_client.chat.completions.create(
             model=model_name,
             messages=[
                 {
                     "role": "system",
-                    "content": (
-                        "You are a warm, upbeat compliment generator for a voice assistant. "
-                        "Return exactly one, family-friendly compliment, one sentence, 8–20 words, "
-                        "no emojis, no quotes."
-                    ),
+                    "content": system_prompt,
                 },
                 {"role": "user", "content": "Give me a compliment."},
             ],
@@ -56,7 +104,18 @@ class LaunchRequestHandler(AbstractRequestHandler):
         return ask_utils.is_request_type("LaunchRequest")(handler_input)
 
     def handle(self, handler_input: HandlerInput) -> Optional[Response]:
-        compliment = generate_compliment()
+        locale = _get_locale(handler_input)
+        variant = _ab_variant(handler_input)
+        compliment = generate_compliment(variant)
+        _put_metric("SessionLaunch", {"Locale": locale, "Variant": variant})
+
+        follow_rate = float(os.getenv("FOLLOWUP_RATE", "0"))
+        if follow_rate > 0:
+            # Deterministic prompt to reduce repeated asks: ask only on variant B
+            if variant == "B":
+                speak_output = f"{compliment} Want another?"
+                reprompt = "Would you like another compliment?"
+                return handler_input.response_builder.speak(speak_output).ask(reprompt).response
         return handler_input.response_builder.speak(compliment).response
 
 class GetComplimentIntentHandler(AbstractRequestHandler):
@@ -64,8 +123,36 @@ class GetComplimentIntentHandler(AbstractRequestHandler):
         return ask_utils.is_intent_name("GetComplimentIntent")(handler_input)
 
     def handle(self, handler_input: HandlerInput) -> Optional[Response]:
-        compliment = generate_compliment()
+        locale = _get_locale(handler_input)
+        variant = _ab_variant(handler_input)
+        compliment = generate_compliment(variant)
+        _put_metric("ComplimentGenerated", {"Locale": locale, "Variant": variant})
+
+        follow_rate = float(os.getenv("FOLLOWUP_RATE", "0"))
+        if follow_rate > 0 and variant == "B":
+            speak_output = f"{compliment} Want another?"
+            reprompt = "Would you like another compliment?"
+            return handler_input.response_builder.speak(speak_output).ask(reprompt).response
         return handler_input.response_builder.speak(compliment).response
+
+class YesIntentHandler(AbstractRequestHandler):
+    def can_handle(self, handler_input: HandlerInput) -> bool:
+        return ask_utils.is_intent_name("AMAZON.YesIntent")(handler_input)
+
+    def handle(self, handler_input: HandlerInput) -> Optional[Response]:
+        locale = _get_locale(handler_input)
+        variant = _ab_variant(handler_input)
+        compliment = generate_compliment(variant)
+        _put_metric("AnotherRequested", {"Locale": locale, "Variant": variant})
+        # Keep session open for possible chains
+        return handler_input.response_builder.speak(compliment + " Want another?").ask("Another one?").response
+
+class NoIntentHandler(AbstractRequestHandler):
+    def can_handle(self, handler_input: HandlerInput) -> bool:
+        return ask_utils.is_intent_name("AMAZON.NoIntent")(handler_input)
+
+    def handle(self, handler_input: HandlerInput) -> Optional[Response]:
+        return handler_input.response_builder.speak("Okay! Come back anytime for a boost.").response
 
 class HelpIntentHandler(AbstractRequestHandler):
     def can_handle(self, handler_input: HandlerInput) -> bool:
@@ -120,6 +207,8 @@ class CatchAllExceptionHandler(AbstractExceptionHandler):
 sb = SkillBuilder()
 sb.add_request_handler(LaunchRequestHandler())
 sb.add_request_handler(GetComplimentIntentHandler())
+sb.add_request_handler(YesIntentHandler())
+sb.add_request_handler(NoIntentHandler())
 sb.add_request_handler(HelpIntentHandler())
 sb.add_request_handler(FallbackIntentHandler())
 sb.add_request_handler(CancelOrStopIntentHandler())

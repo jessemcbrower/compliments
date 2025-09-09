@@ -11,6 +11,34 @@
           "name": "Daily Compliment",
           "description": "Daily Compliment gives you a friendly, family‑safe compliment on demand, powered by OpenAI."
         }
+        ,
+        "en-GB": {
+          "summary": "A quick, kind compliment whenever you ask.",
+          "examplePhrases": [
+            "Alexa, open Daily Compliment",
+            "Alexa, ask Daily Compliment to give me a compliment"
+          ],
+          "name": "Daily Compliment",
+          "description": "Daily Compliment gives you a friendly, family‑safe compliment on demand, powered by OpenAI."
+        },
+        "en-CA": {
+          "summary": "A quick, kind compliment whenever you ask.",
+          "examplePhrases": [
+            "Alexa, open Daily Compliment",
+            "Alexa, ask Daily Compliment to give me a compliment"
+          ],
+          "name": "Daily Compliment",
+          "description": "Daily Compliment gives you a friendly, family‑safe compliment on demand, powered by OpenAI."
+        },
+        "en-AU": {
+          "summary": "A quick, kind compliment whenever you ask.",
+          "examplePhrases": [
+            "Alexa, open Daily Compliment",
+            "Alexa, ask Daily Compliment to give me a compliment"
+          ],
+          "name": "Daily Compliment",
+          "description": "Daily Compliment gives you a friendly, family‑safe compliment on demand, powered by OpenAI."
+        }
       },
       "isAvailableWorldwide": true,
       "testingInstructions": "Say: 'open daily compliment' or 'give me a compliment'.",
