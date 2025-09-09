@@ -39,7 +39,7 @@ jobs:
         run: |
           aws lambda update-function-code --function-name ${{ secrets.LAMBDA_FUNCTION_NAME }} --zip-file fileb://build.zip
           aws lambda update-function-configuration --function-name ${{ secrets.LAMBDA_FUNCTION_NAME }} \
-            --environment "Variables={OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }},OPENAI_MODEL=${{ secrets.OPENAI_MODEL }},OPENAI_MAX_TOKENS=${{ secrets.OPENAI_MAX_TOKENS }},METRICS_NAMESPACE=ComplimentsSkill}"
+            --environment "Variables={OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }},OPENAI_MODEL=${{ secrets.OPENAI_MODEL }},OPENAI_MAX_TOKENS=${{ secrets.OPENAI_MAX_TOKENS }},METRICS_NAMESPACE=ComplimentsSkill,FOLLOWUP_RATE=${{ secrets.FOLLOWUP_RATE }},USER_PREFS_TABLE=${{ secrets.USER_PREFS_TABLE }}}"
 
       - name: Setup Node
         uses: actions/setup-node@v4

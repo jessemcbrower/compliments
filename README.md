@@ -20,6 +20,9 @@ This skill returns a single, family‑friendly compliment using OpenAI. Code is 
    - `OPENAI_MODEL` (optional, default `gpt-4o-mini`)
    - `OPENAI_MAX_TOKENS` (optional, default `64`)
    - `S3_PERSISTENCE_BUCKET`, `S3_PERSISTENCE_REGION` (optional, for `utils_s3.py`)
+   - `FOLLOWUP_RATE` (optional, `0` or `1`; if `1`, asks "Want another?")
+   - `USER_PREFS_TABLE` (optional DynamoDB table name for per-user follow-up preference)
+   - `METRICS_NAMESPACE` (optional, default `ComplimentsSkill`)
 3. Build the package locally:
    - Create a virtualenv and install `requirements.txt`.
    - Zip contents (including dependencies) and upload to Lambda, or use a Lambda layer.
@@ -44,6 +47,7 @@ Prereqs: Node 18+, `ask-cli@2`, and you have a Vendor ID.
 - `AWS_ROLE_ARN`, `AWS_REGION`, `LAMBDA_FUNCTION_NAME`
 - `LAMBDA_ARN` (the ARN used in the skill manifest)
 - `ASK_REFRESH_TOKEN`, `ASK_VENDOR_ID`, `ASK_SKILL_ID`
+- `OPENAI_API_KEY`, `OPENAI_MODEL`, `OPENAI_MAX_TOKENS`
 
 ### Testing
 - Try: "Open daily compliment" or "give me a compliment".
@@ -63,5 +67,10 @@ Prereqs: Node 18+, `ask-cli@2`, and you have a Vendor ID.
 
 ### Localization
 Skill package includes `en-US`, `en-GB`, `en-CA`, `en-AU` models. Update invocation names per locale if desired and redeploy with ASK CLI.
+
+### Optional: DynamoDB follow-up preferences
+Create a table with primary key `pk` (String). Set `USER_PREFS_TABLE` to this table name. Users can say:
+- "enable follow ups" to opt in to a quick "Want another?" prompt
+- "disable follow ups" to opt out
 
 

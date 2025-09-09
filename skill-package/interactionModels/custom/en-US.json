@@ -14,10 +14,24 @@
             "make my day"
           ]
         },
+        { "name": "EnableFollowUpsIntent", "slots": [], "samples": [
+          "enable follow ups",
+          "turn on follow ups",
+          "ask me if I want another",
+          "ask me for another"
+        ]},
+        { "name": "DisableFollowUpsIntent", "slots": [], "samples": [
+          "disable follow ups",
+          "turn off follow ups",
+          "don't ask me again",
+          "stop asking follow ups"
+        ]},
         { "name": "AMAZON.HelpIntent", "samples": [] },
         { "name": "AMAZON.StopIntent", "samples": [] },
         { "name": "AMAZON.CancelIntent", "samples": [] },
-        { "name": "AMAZON.FallbackIntent", "samples": [] }
+        { "name": "AMAZON.FallbackIntent", "samples": [] },
+        { "name": "AMAZON.YesIntent", "samples": [] },
+        { "name": "AMAZON.NoIntent", "samples": [] }
       ],
       "types": []
     }

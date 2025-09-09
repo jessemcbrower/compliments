@@ -1,6 +1,7 @@
 import logging
 import os
 import hashlib
+import time
 from typing import Optional, Dict
 
 import ask_sdk_core.utils as ask_utils
@@ -23,6 +24,14 @@ logger.setLevel(logging.INFO)
 
 _openai_client = OpenAI() if _OPENAI_AVAILABLE and os.getenv("OPENAI_API_KEY") else None
 _cloudwatch = boto3.client("cloudwatch")
+
+_ddb = None
+_prefs_table_name = os.getenv("USER_PREFS_TABLE")
+if _prefs_table_name:
+    try:
+        _ddb = boto3.resource("dynamodb").Table(_prefs_table_name)
+    except Exception as e:
+        logging.getLogger(__name__).warning("DynamoDB table init failed: %s", e)
 
 METRICS_NAMESPACE = os.getenv("METRICS_NAMESPACE", "ComplimentsSkill")
 
@@ -64,10 +73,26 @@ def _ab_variant(handler_input: HandlerInput) -> str:
     bucket = int(digest[:2], 16)  # 0..255
     return "A" if bucket < 128 else "B"
 
+def _moderation_flagged(text: str) -> bool:
+    # Prefer OpenAI moderation if available; otherwise use a simple keyword screen
+    try:
+        if _openai_client is not None:
+            mod = _openai_client.moderations.create(model="omni-moderation-latest", input=text)
+            # Support both list and attribute access styles
+            results = getattr(mod, "results", None) or mod["results"]
+            flagged = bool(results[0].get("flagged", False))
+            return flagged
+    except Exception as e:
+        logger.warning("Moderation check failed: %s", e)
+    banned = {"sex", "sexy", "hate", "stupid", "dumb"}
+    lower = text.lower()
+    return any(w in lower for w in banned)
+
 def generate_compliment(variant: str) -> str:
     fallback = "You're doing great — keep it up!"
     if _openai_client is None:
         logger.warning("OpenAI client unavailable or API key not set; using fallback compliment.")
+        _put_metric("ComplimentFallback", {"Reason": "NoClient"})
         return fallback
 
     model_name = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
@@ -94,10 +119,87 @@ def generate_compliment(variant: str) -> str:
         )
         text = (completion.choices[0].message.content or "").strip()
         text = " ".join(text.split())
-        return text or fallback
+        if not text:
+            _put_metric("ComplimentFallback", {"Reason": "Empty"})
+            return fallback
+        if _moderation_flagged(text):
+            _put_metric("ComplimentFlagged", {"Variant": variant})
+            # Retry once with safer instruction
+            safer_prompt = (
+                "Generate a very safe, neutral, family-friendly compliment suitable for all ages. "
+                "Exactly one short sentence, 8–16 words, no quotes, no emojis."
+            )
+            try:
+                completion2 = _openai_client.chat.completions.create(
+                    model=model_name,
+                    messages=[
+                        {"role": "system", "content": safer_prompt},
+                        {"role": "user", "content": "Give me a compliment."},
+                    ],
+                    temperature=0.7,
+                    max_tokens=int(os.getenv("OPENAI_MAX_TOKENS", "64")),
+                    timeout=8,
+                )
+                text2 = (completion2.choices[0].message.content or "").strip()
+                text2 = " ".join(text2.split())
+                if text2 and not _moderation_flagged(text2):
+                    return text2
+            except Exception as e:
+                logger.warning("Retry after moderation failed: %s", e)
+            _put_metric("ComplimentFallback", {"Reason": "Moderation"})
+            return fallback
+        return text
     except Exception as e:
         logger.error("OpenAI error: %s", e, exc_info=True)
+        _put_metric("ComplimentFallback", {"Reason": "Exception"})
         return fallback
+
+def _user_hash(handler_input: HandlerInput) -> str:
+    try:
+        user_id = handler_input.request_envelope.context.system.user.user_id or "anon"
+    except Exception:
+        user_id = "anon"
+    return hashlib.sha256(user_id.encode("utf-8")).hexdigest()
+
+def _get_followups_pref(handler_input: HandlerInput) -> Optional[bool]:
+    if not _ddb:
+        return None
+    pk = _user_hash(handler_input)
+    try:
+        resp = _ddb.get_item(Key={"pk": pk}, ConsistentRead=True)
+        item = resp.get("Item")
+        if not item:
+            return None
+        val = item.get("followups_enabled")
+        if isinstance(val, bool):
+            return val
+        if isinstance(val, (int, float)):
+            return bool(val)
+        return None
+    except Exception as e:
+        logger.warning("DDB get failed: %s", e)
+        return None
+
+def _set_followups_pref(handler_input: HandlerInput, enabled: bool) -> bool:
+    if not _ddb:
+        return False
+    pk = _user_hash(handler_input)
+    try:
+        _ddb.put_item(Item={"pk": pk, "followups_enabled": enabled, "updated_at": int(time.time())})
+        return True
+    except Exception as e:
+        logger.warning("DDB put failed: %s", e)
+        return False
+
+def _should_offer_followup(handler_input: HandlerInput, variant: str) -> bool:
+    pref = _get_followups_pref(handler_input)
+    if pref is not None:
+        return pref
+    try:
+        follow_rate = float(os.getenv("FOLLOWUP_RATE", "0"))
+    except Exception:
+        follow_rate = 0.0
+    return follow_rate > 0 and variant == "B"
 
 class LaunchRequestHandler(AbstractRequestHandler):
     def can_handle(self, handler_input: HandlerInput) -> bool:
@@ -109,13 +211,10 @@ class LaunchRequestHandler(AbstractRequestHandler):
         compliment = generate_compliment(variant)
         _put_metric("SessionLaunch", {"Locale": locale, "Variant": variant})
 
-        follow_rate = float(os.getenv("FOLLOWUP_RATE", "0"))
-        if follow_rate > 0:
-            # Deterministic prompt to reduce repeated asks: ask only on variant B
-            if variant == "B":
-                speak_output = f"{compliment} Want another?"
-                reprompt = "Would you like another compliment?"
-                return handler_input.response_builder.speak(speak_output).ask(reprompt).response
+        if _should_offer_followup(handler_input, variant):
+            speak_output = f"{compliment} Want another?"
+            reprompt = "Would you like another compliment?"
+            return handler_input.response_builder.speak(speak_output).ask(reprompt).response
         return handler_input.response_builder.speak(compliment).response
 
 class GetComplimentIntentHandler(AbstractRequestHandler):
@@ -128,8 +227,7 @@ class GetComplimentIntentHandler(AbstractRequestHandler):
         compliment = generate_compliment(variant)
         _put_metric("ComplimentGenerated", {"Locale": locale, "Variant": variant})
 
-        follow_rate = float(os.getenv("FOLLOWUP_RATE", "0"))
-        if follow_rate > 0 and variant == "B":
+        if _should_offer_followup(handler_input, variant):
             speak_output = f"{compliment} Want another?"
             reprompt = "Would you like another compliment?"
             return handler_input.response_builder.speak(speak_output).ask(reprompt).response
@@ -153,6 +251,24 @@ class NoIntentHandler(AbstractRequestHandler):
 
     def handle(self, handler_input: HandlerInput) -> Optional[Response]:
         return handler_input.response_builder.speak("Okay! Come back anytime for a boost.").response
+
+class EnableFollowUpsIntentHandler(AbstractRequestHandler):
+    def can_handle(self, handler_input: HandlerInput) -> bool:
+        return ask_utils.is_intent_name("EnableFollowUpsIntent")(handler_input)
+
+    def handle(self, handler_input: HandlerInput) -> Optional[Response]:
+        if _set_followups_pref(handler_input, True):
+            return handler_input.response_builder.speak("Got it. I’ll ask if you want another compliment.").response
+        return handler_input.response_builder.speak("Okay. I’ll ask if you want another compliment.").response
+
+class DisableFollowUpsIntentHandler(AbstractRequestHandler):
+    def can_handle(self, handler_input: HandlerInput) -> bool:
+        return ask_utils.is_intent_name("DisableFollowUpsIntent")(handler_input)
+
+    def handle(self, handler_input: HandlerInput) -> Optional[Response]:
+        if _set_followups_pref(handler_input, False):
+            return handler_input.response_builder.speak("No problem. I won’t ask follow-up questions.").response
+        return handler_input.response_builder.speak("Okay. I won’t ask follow-up questions.").response
 
 class HelpIntentHandler(AbstractRequestHandler):
     def can_handle(self, handler_input: HandlerInput) -> bool:
@@ -207,6 +323,8 @@ class CatchAllExceptionHandler(AbstractExceptionHandler):
 sb = SkillBuilder()
 sb.add_request_handler(LaunchRequestHandler())
 sb.add_request_handler(GetComplimentIntentHandler())
+sb.add_request_handler(EnableFollowUpsIntentHandler())
+sb.add_request_handler(DisableFollowUpsIntentHandler())
 sb.add_request_handler(YesIntentHandler())
 sb.add_request_handler(NoIntentHandler())
 sb.add_request_handler(HelpIntentHandler())
