@@ -1,0 +1,163 @@
+{
+  "manifest": {
+    "apis": {
+      "custom": {
+        "endpoint": {
+          "uri": "arn:aws:lambda:us-east-1:173741935169:function:ComplimentsGPT"
+        },
+        "interfaces": [],
+        "locales": {},
+        "regions": {
+          "EU": {
+            "endpoint": {
+              "uri": "arn:aws:lambda:us-east-1:173741935169:function:ComplimentsGPT"
+            }
+          },
+          "NA": {
+            "endpoint": {
+              "uri": "arn:aws:lambda:us-east-1:173741935169:function:ComplimentsGPT"
+            }
+          },
+          "FE": {
+            "endpoint": {
+              "uri": "arn:aws:lambda:us-east-1:173741935169:function:ComplimentsGPT"
+            }
+          }
+        }
+      }
+    },
+    "manifestVersion": "1.0",
+    "privacyAndCompliance": {
+      "allowsPurchases": false,
+      "containsAds": false,
+      "isChildDirected": false,
+      "isExportCompliant": true,
+      "locales": {
+        "en-US": {},
+        "en-CA": {},
+        "en-IN": {},
+        "en-AU": {},
+        "en-GB": {}
+      },
+      "shoppingKit": {
+        "isAmazonAssociatesOnAlexaEnabled": false,
+        "isShoppingActionsEnabled": false
+      },
+      "usesPersonalInfo": false
+    },
+    "publishingInformation": {
+      "automaticClonedLocale": {
+        "locales": [
+          {
+            "source": "en-US"
+          }
+        ]
+      },
+      "automaticDistribution": {
+        "isActive": false
+      },
+      "category": "SELF_IMPROVEMENT",
+      "distributionCountries": [],
+      "distributionMode": "PUBLIC",
+      "isAvailableWorldwide": true,
+      "locales": {
+        "en-US": {
+          "description": "I will generate a compliment using GPT-4 and deliver it to you using Alexa!",
+          "examplePhrases": [
+            "Alexa, give me a compliment"
+          ],
+          "keywords": [
+            "compliment",
+            "affirmation",
+            "kindness",
+            "positive",
+            "ai",
+            "gpt"
+          ],
+          "largeIconUri": "https://s3.amazonaws.com/CAPS-SSE/echo_developer/3e0b/09ebd87921ff44818220891df147bb9a/APP_ICON_LARGE?versionId=9yXBYwyjaQVjBoojZ4Efrtsk_CZ.B97g&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250909T034757Z&X-Amz-SignedHeaders=host&X-Amz-Expires=604799&X-Amz-Credential=AKIAWBV6LQ4QBTWR6JG7%2F20250909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=a3c4ee90723e29181af02adaa3c9f75e4c9844c3dbbfa3f840ff3775b5421204",
+          "name": "ComplimenterGPT",
+          "smallIconUri": "https://s3.amazonaws.com/CAPS-SSE/echo_developer/da69/6e5aaa7e0c874e6996405ef874e2d677/APP_ICON?versionId=7V8hu3bQpfxVg.U3yCSwsTJRwtguwKa4&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250909T034757Z&X-Amz-SignedHeaders=host&X-Amz-Expires=604799&X-Amz-Credential=AKIAWBV6LQ4QBTWR6JG7%2F20250909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=035ed01909ff85d5f10e699c889569d73ab44e8cfe5cbd69f1f00044bb290ea2",
+          "summary": "In need of a compliment? Just ask! Now powered by GPT-4",
+          "updatesDescription": "Upgraded to use the GPT-4 model"
+        },
+        "en-CA": {
+          "description": "I will generate a compliment using GPT-4 and deliver it to you using Alexa!",
+          "examplePhrases": [
+            "Alexa, give me a compliment"
+          ],
+          "keywords": [
+            "compliment",
+            "affirmation",
+            "kindness",
+            "positive",
+            "ai",
+            "gpt"
+          ],
+          "largeIconUri": "https://s3.amazonaws.com/CAPS-SSE/echo_developer/3e0b/09ebd87921ff44818220891df147bb9a/APP_ICON_LARGE?versionId=9yXBYwyjaQVjBoojZ4Efrtsk_CZ.B97g&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250909T034757Z&X-Amz-SignedHeaders=host&X-Amz-Expires=604799&X-Amz-Credential=AKIAWBV6LQ4QBTWR6JG7%2F20250909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=a3c4ee90723e29181af02adaa3c9f75e4c9844c3dbbfa3f840ff3775b5421204",
+          "name": "ComplimenterGPT",
+          "smallIconUri": "https://s3.amazonaws.com/CAPS-SSE/echo_developer/da69/6e5aaa7e0c874e6996405ef874e2d677/APP_ICON?versionId=7V8hu3bQpfxVg.U3yCSwsTJRwtguwKa4&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250909T034757Z&X-Amz-SignedHeaders=host&X-Amz-Expires=604799&X-Amz-Credential=AKIAWBV6LQ4QBTWR6JG7%2F20250909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=035ed01909ff85d5f10e699c889569d73ab44e8cfe5cbd69f1f00044bb290ea2",
+          "summary": "In need of a compliment? Just ask! Now powered by GPT-4",
+          "updatesDescription": "Upgraded to use the GPT-4 model"
+        },
+        "en-IN": {
+          "description": "I will generate a compliment using GPT-4 and deliver it to you using Alexa!",
+          "examplePhrases": [
+            "Alexa, give me a compliment"
+          ],
+          "keywords": [
+            "compliment",
+            "affirmation",
+            "kindness",
+            "positive",
+            "ai",
+            "gpt"
+          ],
+          "largeIconUri": "https://s3.amazonaws.com/CAPS-SSE/echo_developer/3e0b/09ebd87921ff44818220891df147bb9a/APP_ICON_LARGE?versionId=9yXBYwyjaQVjBoojZ4Efrtsk_CZ.B97g&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250909T034757Z&X-Amz-SignedHeaders=host&X-Amz-Expires=604799&X-Amz-Credential=AKIAWBV6LQ4QBTWR6JG7%2F20250909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=a3c4ee90723e29181af02adaa3c9f75e4c9844c3dbbfa3f840ff3775b5421204",
+          "name": "ComplimenterGPT",
+          "smallIconUri": "https://s3.amazonaws.com/CAPS-SSE/echo_developer/da69/6e5aaa7e0c874e6996405ef874e2d677/APP_ICON?versionId=7V8hu3bQpfxVg.U3yCSwsTJRwtguwKa4&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250909T034757Z&X-Amz-SignedHeaders=host&X-Amz-Expires=604799&X-Amz-Credential=AKIAWBV6LQ4QBTWR6JG7%2F20250909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=035ed01909ff85d5f10e699c889569d73ab44e8cfe5cbd69f1f00044bb290ea2",
+          "summary": "In need of a compliment? Just ask! Now powered by GPT-4",
+          "updatesDescription": "Upgraded to use the GPT-4 model"
+        },
+        "en-AU": {
+          "description": "I will generate a compliment using GPT-4 and deliver it to you using Alexa!",
+          "examplePhrases": [
+            "Alexa, give me a compliment"
+          ],
+          "keywords": [
+            "compliment",
+            "affirmation",
+            "kindness",
+            "positive",
+            "ai",
+            "gpt"
+          ],
+          "largeIconUri": "https://s3.amazonaws.com/CAPS-SSE/echo_developer/3e0b/09ebd87921ff44818220891df147bb9a/APP_ICON_LARGE?versionId=9yXBYwyjaQVjBoojZ4Efrtsk_CZ.B97g&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250909T034757Z&X-Amz-SignedHeaders=host&X-Amz-Expires=604799&X-Amz-Credential=AKIAWBV6LQ4QBTWR6JG7%2F20250909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=a3c4ee90723e29181af02adaa3c9f75e4c9844c3dbbfa3f840ff3775b5421204",
+          "name": "ComplimenterGPT",
+          "smallIconUri": "https://s3.amazonaws.com/CAPS-SSE/echo_developer/da69/6e5aaa7e0c874e6996405ef874e2d677/APP_ICON?versionId=7V8hu3bQpfxVg.U3yCSwsTJRwtguwKa4&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250909T034757Z&X-Amz-SignedHeaders=host&X-Amz-Expires=604799&X-Amz-Credential=AKIAWBV6LQ4QBTWR6JG7%2F20250909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=035ed01909ff85d5f10e699c889569d73ab44e8cfe5cbd69f1f00044bb290ea2",
+          "summary": "In need of a compliment? Just ask! Now powered by GPT-4",
+          "updatesDescription": "Upgraded to use the GPT-4 model"
+        },
+        "en-GB": {
+          "description": "I will generate a compliment using GPT-4 and deliver it to you using Alexa!",
+          "examplePhrases": [
+            "Alexa, give me a compliment"
+          ],
+          "keywords": [
+            "compliment",
+            "affirmation",
+            "kindness",
+            "positive",
+            "ai",
+            "gpt"
+          ],
+          "largeIconUri": "https://s3.amazonaws.com/CAPS-SSE/echo_developer/3e0b/09ebd87921ff44818220891df147bb9a/APP_ICON_LARGE?versionId=9yXBYwyjaQVjBoojZ4Efrtsk_CZ.B97g&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250909T034757Z&X-Amz-SignedHeaders=host&X-Amz-Expires=604799&X-Amz-Credential=AKIAWBV6LQ4QBTWR6JG7%2F20250909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=a3c4ee90723e29181af02adaa3c9f75e4c9844c3dbbfa3f840ff3775b5421204",
+          "name": "ComplimenterGPT",
+          "smallIconUri": "https://s3.amazonaws.com/CAPS-SSE/echo_developer/da69/6e5aaa7e0c874e6996405ef874e2d677/APP_ICON?versionId=7V8hu3bQpfxVg.U3yCSwsTJRwtguwKa4&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250909T034757Z&X-Amz-SignedHeaders=host&X-Amz-Expires=604799&X-Amz-Credential=AKIAWBV6LQ4QBTWR6JG7%2F20250909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=035ed01909ff85d5f10e699c889569d73ab44e8cfe5cbd69f1f00044bb290ea2",
+          "summary": "In need of a compliment? Just ask! Now powered by GPT-4",
+          "updatesDescription": "Upgraded to use the GPT-4 model"
+        }
+      },
+      "testingInstructions": "{\"ask_dist_username\":\"\",\"ask_dist_password\":\"\",\"ask_dist_testing_instructions\":\"This skill will work on all Alexa platforms.\"}"
+    }
+  }
+}
