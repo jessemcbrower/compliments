@@ -1,7 +1,7 @@
 {
   "interactionModel": {
     "languageModel": {
-      "invocationName": "daily compliment",
+      "invocationName": "give me a compliment",
       "intents": [
         {
           "name": "GetComplimentIntent",
