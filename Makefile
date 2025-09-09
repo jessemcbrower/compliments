@@ -34,11 +34,13 @@ ask-deploy:
 backup-skill:
 	@if [ -z "$(SKILL_ID)" ]; then echo "SKILL_ID required" && exit 1; fi
 	mkdir -p backups/skill
-	npx ask-cli@2 smapi get-skill -s $(SKILL_ID) > backups/skill/skill.json
-	npx ask-cli@2 smapi get-interaction-model -s $(SKILL_ID) -l en-US > backups/skill/en-US.json || true
-	npx ask-cli@2 smapi get-interaction-model -s $(SKILL_ID) -l en-GB > backups/skill/en-GB.json || true
-	npx ask-cli@2 smapi get-interaction-model -s $(SKILL_ID) -l en-CA > backups/skill/en-CA.json || true
-	npx ask-cli@2 smapi get-interaction-model -s $(SKILL_ID) -l en-AU > backups/skill/en-AU.json || true
+	npx ask-cli@2 smapi get-skill-manifest -s $(SKILL_ID) -g development > backups/skill/manifest.development.json
+	npx ask-cli@2 smapi get-skill-manifest -s $(SKILL_ID) -g live > backups/skill/manifest.live.json || true
+	npx ask-cli@2 smapi get-interaction-model -s $(SKILL_ID) -g development -l en-US > backups/skill/en-US.json || true
+	npx ask-cli@2 smapi get-interaction-model -s $(SKILL_ID) -g development -l en-GB > backups/skill/en-GB.json || true
+	npx ask-cli@2 smapi get-interaction-model -s $(SKILL_ID) -g development -l en-CA > backups/skill/en-CA.json || true
+	npx ask-cli@2 smapi get-interaction-model -s $(SKILL_ID) -g development -l en-AU > backups/skill/en-AU.json || true
+	npx ask-cli@2 smapi get-interaction-model -s $(SKILL_ID) -g development -l en-IN > backups/skill/en-IN.json || true
 
 backup-lambda:
 	@if [ -z "$(LAMBDA_FUNCTION_NAME)" ]; then echo "LAMBDA_FUNCTION_NAME required" && exit 1; fi
@@ -48,8 +50,10 @@ backup-lambda:
 
 deploy-all:
 	@if [ -z "$(LAMBDA_ARN)" ]; then echo "LAMBDA_ARN required" && exit 1; fi
+	@if [ -z "$(SKILL_ID)" ]; then echo "SKILL_ID required" && exit 1; fi
 	$(MAKE) package
 	aws lambda update-function-code --function-name $(LAMBDA_FUNCTION_NAME) --zip-file fileb://$(ZIP)
 	LAMBDA_ARN=$(LAMBDA_ARN) $(PY) scripts/render_skill_manifest.py
+	SKILL_ID=$(SKILL_ID) $(PY) scripts/render_ask_resources.py
 	npx ask-cli@2 deploy -p default
 

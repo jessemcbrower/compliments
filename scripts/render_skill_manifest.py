@@ -12,12 +12,17 @@ def main():
     with open(skill_path, "r", encoding="utf-8") as f:
         manifest = json.load(f)
 
-    endpoint = manifest.get("manifest", {}).get("apis", {}).get("custom", {}).get("endpoint", {})
-    if not endpoint:
+    apis = manifest.get("manifest", {}).get("apis", {})
+    custom = apis.get("custom", {})
+    endpoint = custom.get("endpoint", {})
+    if endpoint is None:
         print("Invalid skill manifest structure", file=sys.stderr)
         sys.exit(1)
 
     endpoint["uri"] = arn
+    # Remove regions to rely on default endpoint only
+    if "regions" in custom:
+        del custom["regions"]
 
     with open(skill_path, "w", encoding="utf-8") as f:
         json.dump(manifest, f, indent=2)

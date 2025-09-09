@@ -9,9 +9,8 @@
             "Alexa, ask Daily Compliment to give me a compliment"
           ],
           "name": "Daily Compliment",
-          "description": "Daily Compliment gives you a friendly, family‑safe compliment on demand, powered by OpenAI."
-        }
-        ,
+          "description": "Daily Compliment gives you a friendly, family\u2011safe compliment on demand, powered by OpenAI."
+        },
         "en-GB": {
           "summary": "A quick, kind compliment whenever you ask.",
           "examplePhrases": [
@@ -19,7 +18,7 @@
             "Alexa, ask Daily Compliment to give me a compliment"
           ],
           "name": "Daily Compliment",
-          "description": "Daily Compliment gives you a friendly, family‑safe compliment on demand, powered by OpenAI."
+          "description": "Daily Compliment gives you a friendly, family\u2011safe compliment on demand, powered by OpenAI."
         },
         "en-CA": {
           "summary": "A quick, kind compliment whenever you ask.",
@@ -28,7 +27,7 @@
             "Alexa, ask Daily Compliment to give me a compliment"
           ],
           "name": "Daily Compliment",
-          "description": "Daily Compliment gives you a friendly, family‑safe compliment on demand, powered by OpenAI."
+          "description": "Daily Compliment gives you a friendly, family\u2011safe compliment on demand, powered by OpenAI."
         },
         "en-AU": {
           "summary": "A quick, kind compliment whenever you ask.",
@@ -37,18 +36,18 @@
             "Alexa, ask Daily Compliment to give me a compliment"
           ],
           "name": "Daily Compliment",
-          "description": "Daily Compliment gives you a friendly, family‑safe compliment on demand, powered by OpenAI."
+          "description": "Daily Compliment gives you a friendly, family\u2011safe compliment on demand, powered by OpenAI."
         }
       },
       "isAvailableWorldwide": true,
       "testingInstructions": "Say: 'open daily compliment' or 'give me a compliment'.",
-      "category": "PRODUCTIVITY",
+      "category": "SELF_IMPROVEMENT",
       "distributionMode": "PUBLIC"
     },
     "apis": {
       "custom": {
         "endpoint": {
-          "uri": "{{LAMBDA_ARN}}"
+          "uri": "arn:aws:lambda:us-east-1:173741935169:function:ComplimentsGPT:ask-dev"
         }
       }
     },
@@ -56,4 +55,3 @@
     "permissions": []
   }
 }
-

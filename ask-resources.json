@@ -3,8 +3,8 @@
     "default": {
       "skillMetadata": {
         "src": "skill-package"
-      }
+      },
+      "skillId": "amzn1.ask.skill.523f4a4e-073c-4e6a-b129-3dfdab1b1fba"
     }
   }
 }
-
